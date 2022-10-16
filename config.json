@@ -1,0 +1,25 @@
+{
+  "server": {
+    "host": "mc.hypixel.net",
+    "port": 25565
+  },
+  "minecraft": {
+    "username": "SIBridge",
+    "password": "",
+    "lobbyHolder": "SIBridge",
+    "accountType": "microsoft"
+  },
+  "discord": {
+    "token": "",
+    "channel": "1012433068860125355",
+    "commandRole": "1012459042880372809",
+    "ownerId": "426736630431219723",
+    "prefix": "!",
+    "messageMode": "bot"
+  },
+  "express": {
+    "enabled": true,
+    "port": 8880,
+    "authorization": "authorizationHeaderString"
+  }
+}
