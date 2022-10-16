@@ -20,6 +20,8 @@ class ExpressManager {
     this.router.post('/override', this.override.bind(this))
     this.router.post('/invite', this.invite.bind(this))
     this.router.post('/setrank', this.setRank.bind(this))
+    this.router.get('/apinew', this.apiNew.bind(this))
+    this.router.get('/keepAlive', this.keepAlive.bind(this))
 
     this.express.use(express.json(), express.urlencoded({ extended: false }), this.authenticate.bind(this), this.validateBody.bind(this))
     this.express.use('/api', this.router)
@@ -30,18 +32,20 @@ class ExpressManager {
     })
   }
 
-  authenticate(request, response, next) {
+  async apiNew(request, response) {
     try {
-      this.app.log.express(`Incoming request from ${request.ip} to ${request.originalUrl}`)
+      if (this.app.minecraft.bot?.player) {
+        this.app.minecraft.bot.chat('/api new')
 
-      if (request.headers?.authorization !== this.app.config.express.authorization && request.query?.key !== this.app.config.express.authorization) {
-        return response.status(401).json({
-          success: false,
-          reason: 'Invalid or Missing Authentication'
+        return response.status(200).json({
+          success: true
         })
       }
 
-      next()
+      return response.status(409).json({
+        success: false,
+        reason: 'Minecraft client is unavailable at this time'
+      })
     } catch (error) {
       this.app.log.error(error)
 
@@ -51,6 +55,21 @@ class ExpressManager {
       })
     }
   }
+
+  authenticate(request, response, next) {
+        try {
+            this.app.log.express(`Incoming request from ${request.ip} to ${request.originalUrl}`)
+
+            next()
+        } catch (error) {
+            this.app.log.error(error)
+
+            return response.status(500).json({
+                success: false,
+                reason: 'An internal server error occurred'
+            })
+        }
+    }
 
   validateBody(request, response, next) {
     try {
@@ -86,6 +105,14 @@ class ExpressManager {
           }
           break
 
+        case 'apinew':
+          next()
+          break
+
+        case 'keepAlive':
+          next()
+          break
+
         default:
           if (this.missing(['username'], request.body)) {
             return response.status(400).json({
@@ -104,6 +131,13 @@ class ExpressManager {
       })
     }
   }
+
+  keepAlive(request, response) {
+        return response.status(200).json({
+            success: true,
+            response: 'Still alive'
+        })
+    }
 
   missing(array, object) {
     try {
@@ -290,7 +324,7 @@ class ExpressManager {
     try {
       if (this.app.minecraft.bot?.player) {
         this.app.minecraft.bot.chat(`/guild setrank ${request.body.username} ${request.body.rank}`)
-
+        
         return response.status(200).json({
           success: true
         })
@@ -310,5 +344,7 @@ class ExpressManager {
     }
   }
 }
+
+
 
 module.exports = ExpressManager
