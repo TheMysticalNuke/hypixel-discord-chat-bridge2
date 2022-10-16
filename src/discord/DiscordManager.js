@@ -27,7 +27,7 @@ class DiscordManager extends CommunicationBridge {
     this.client.on('ready', () => this.stateHandler.onReady())
     this.client.on('message', message => this.messageHandler.onMessage(message))
 
-    this.client.login(this.app.config.discord.token).catch(error => {
+    this.client.login(process.env.DISCORD_TOKEN).catch(error => {
       this.app.log.error(error)
 
       process.exit(1)
