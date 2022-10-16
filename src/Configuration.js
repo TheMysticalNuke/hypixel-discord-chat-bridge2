@@ -48,6 +48,7 @@ class Configuration {
   constructor() {
     if (fs.existsSync('config.json')) {
       this.properties = require('../config.json')
+      this.properties.express.port = process.env.PORT
     }
 
     for (let environment of Object.keys(process.env)) {
